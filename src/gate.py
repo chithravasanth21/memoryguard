@@ -1,4 +1,5 @@
 from src.trust import trust_score
+from src.rules import check_rules
 
 # Notes with a score below this line are held back
 THRESHOLD = 0.3
@@ -10,7 +11,8 @@ def gate(entries, current_session):
     quarantined = []
     for e in entries:
         score = trust_score(e, current_session)
-        if score >= THRESHOLD:
+        problems = check_rules(e)
+        if score >= THRESHOLD and not problems:
             allowed.append(e)
         else:
             quarantined.append(e)
