@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 import streamlit as st
 from src.guard import MemoryGuard
 from src.trust import trust_score
@@ -18,8 +19,16 @@ for text, source, _ in GOOD_NOTES + POISON_NOTES:
 safe, held = g.read()
 held_hashes = [e["hash"] for e in held]
 
-st.write("Chain check (-1 means clean):", g.verify())
-st.write("Safe notes:", len(safe), "| Held back:", len(held))
+# Big number boxes
+c1, c2, c3 = st.columns(3)
+c1.metric("Total notes", len(g.store.entries))
+c2.metric("Safe", len(safe))
+c3.metric("Held back", len(held))
+
+if g.verify() == -1:
+    st.success("Chain check passed: no tampering found")
+else:
+    st.error("Chain check FAILED: a note was edited")
 
 rows = []
 for e in g.store.entries:
@@ -30,5 +39,16 @@ for e in g.store.entries:
         "problems": ", ".join(check_rules(e)),
         "status": "HELD" if e["hash"] in held_hashes else "allowed",
     })
+df = pd.DataFrame(rows)
 
-st.dataframe(rows)
+
+def color_row(row):
+    color = "#ffd6d6" if row["status"] == "HELD" else "#d6ffd6"
+    return ["background-color: " + color + "; color: black"] * len(row)
+
+
+st.subheader("All memories")
+st.dataframe(df.style.apply(color_row, axis=1))
+
+st.subheader("Trust score of each note")
+st.bar_chart(df.set_index("note")["trust"])
