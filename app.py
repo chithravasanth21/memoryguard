@@ -4,18 +4,23 @@ import streamlit as st
 from src.guard import MemoryGuard
 from src.trust import trust_score
 from src.rules import check_rules
+from src.envelope import make_entry
+from src.gate import gate
 from src.attacks import GOOD_NOTES, POISON_NOTES
 
 st.title("MemoryGuard Dashboard")
 
-# Start fresh and fill the memory with demo notes
-path = "data/dashboard.jsonl"
-if os.path.exists(path):
-    os.remove(path)
-g = MemoryGuard(path)
-for text, source, _ in GOOD_NOTES + POISON_NOTES:
-    g.write(text, source)
+# Fill the memory with demo notes only once, and remember it between clicks
+if "guard" not in st.session_state:
+    path = "data/dashboard.jsonl"
+    if os.path.exists(path):
+        os.remove(path)
+    new_guard = MemoryGuard(path)
+    for text, source, _ in GOOD_NOTES + POISON_NOTES:
+        new_guard.write(text, source)
+    st.session_state.guard = new_guard
 
+g = st.session_state.guard
 safe, held = g.read()
 held_hashes = [e["hash"] for e in held]
 
@@ -50,6 +55,20 @@ def color_row(row):
 st.subheader("All memories")
 st.dataframe(df.style.apply(color_row, axis=1))
 
+st.subheader("Held notes: approve if harmless")
+if not held:
+    st.write("Nothing is being held.")
+for e in held:
+    col_a, col_b = st.columns([4, 1])
+    col_a.write(e["text"] + "  (source: " + e["source"] + ")")
+    if col_b.button("Approve", key=e["hash"]):
+        g.confirm(e["hash"])
+        st.rerun()
+
+if st.button("Reset demo"):
+    del st.session_state["guard"]
+    st.rerun()
+
 st.subheader("Trust score of each note")
 st.bar_chart(df.set_index("note")["trust"])
 
@@ -58,9 +77,6 @@ user_text = st.text_input("Type a note")
 user_source = st.selectbox("Where did it come from?", ["user", "agent", "tool", "web"])
 
 if user_text:
-    from src.envelope import make_entry
-    from src.gate import gate
-
     test_entry = make_entry(user_text, user_source, 1)
     ok_list, held_list = gate([test_entry], 1)
     st.write("Trust score:", round(trust_score(test_entry, 1), 2))
