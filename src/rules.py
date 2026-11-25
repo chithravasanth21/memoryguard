@@ -9,6 +9,9 @@ SUSPICIOUS_PHRASES = [
     "do not tell the user",
     "secretly",
     "override",
+    "disregard",
+    "from now on",
+    "forward every",
 ]
 
 KNOWN_SOURCES = ["user", "agent", "tool", "web"]
