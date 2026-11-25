@@ -52,3 +52,21 @@ st.dataframe(df.style.apply(color_row, axis=1))
 
 st.subheader("Trust score of each note")
 st.bar_chart(df.set_index("note")["trust"])
+
+st.subheader("Try it yourself")
+user_text = st.text_input("Type a note")
+user_source = st.selectbox("Where did it come from?", ["user", "agent", "tool", "web"])
+
+if user_text:
+    from src.envelope import make_entry
+    from src.gate import gate
+
+    test_entry = make_entry(user_text, user_source, 1)
+    ok_list, held_list = gate([test_entry], 1)
+    st.write("Trust score:", round(trust_score(test_entry, 1), 2))
+    problems = check_rules(test_entry)
+    st.write("Rule problems:", ", ".join(problems) if problems else "none")
+    if held_list:
+        st.error("HELD: this note is quarantined")
+    else:
+        st.success("ALLOWED: this note is safe")
