@@ -51,9 +51,7 @@ for i, e in enumerate(g.store.entries, start=1):
 df = pd.DataFrame(rows)
 
 
-def color_row(row):
-    color = "#ffd6d6" if row["status"] == "HELD" else "#d6ffd6"
-    return ["background-color: " + color + "; color: black"] * len(row)
+df = pd.DataFrame(rows)
 
 
 def color_row(row):
