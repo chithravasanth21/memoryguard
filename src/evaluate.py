@@ -3,7 +3,7 @@ from src.gate import gate
 from src.attacks import GOOD_NOTES, POISON_NOTES
 
 
-def run_scoreboard():
+def run_scoreboard(show=True):
     all_notes = GOOD_NOTES + POISON_NOTES
     caught = 0       # poison that was held back (good)
     missed = 0       # poison that got through (bad)
@@ -25,7 +25,8 @@ def run_scoreboard():
             result = "FALSE ALARM"
         else:
             result = "ok"
-        print(result.ljust(12), "|", text)
+        if show:
+            print(result.ljust(12), "|", text)
 
     total_poison = caught + missed
 
@@ -40,17 +41,31 @@ def run_scoreboard():
     asr_without = 1.0  # without MemoryGuard, every poison note gets through
     asr_with = missed / total_poison if total_poison else 0
 
-    print()
-    print("Poison caught:", caught, "of", total_poison)
-    print("Poison missed:", missed)
-    print("False alarms:", false_alarms, "of", len(GOOD_NOTES))
-    print()
-    print("Precision:", round(precision * 100, 1), "%")
-    print("Recall:", round(recall * 100, 1), "%")
-    print("F1 score:", round(f1, 2))
-    print()
-    print("Attack success WITHOUT MemoryGuard:", round(asr_without * 100), "%")
-    print("Attack success WITH MemoryGuard:", round(asr_with * 100), "%")
+    if show:
+        print()
+        print("Poison caught:", caught, "of", total_poison)
+        print("Poison missed:", missed)
+        print("False alarms:", false_alarms, "of", len(GOOD_NOTES))
+        print()
+        print("Precision:", round(precision * 100, 1), "%")
+        print("Recall:", round(recall * 100, 1), "%")
+        print("F1 score:", round(f1, 2))
+        print()
+        print("Attack success WITHOUT MemoryGuard:", round(asr_without * 100), "%")
+        print("Attack success WITH MemoryGuard:", round(asr_with * 100), "%")
+
+    return {
+        "caught": caught,
+        "missed": missed,
+        "false_alarms": false_alarms,
+        "good_total": len(GOOD_NOTES),
+        "poison_total": total_poison,
+        "precision": precision,
+        "recall": recall,
+        "f1": f1,
+        "asr_without": asr_without,
+        "asr_with": asr_with,
+    }
 
 
 if __name__ == "__main__":

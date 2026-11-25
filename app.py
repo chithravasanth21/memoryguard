@@ -8,6 +8,7 @@ from src.envelope import make_entry
 from src.gate import gate
 from src.attacks import GOOD_NOTES, POISON_NOTES
 from src.agent import SimpleAgent
+from src.evaluate import run_scoreboard
 
 st.title("MemoryGuard Dashboard")
 
@@ -153,3 +154,26 @@ if st.button("Ask both agents"):
         right.error("Bad orders obeyed: " + str(len(bad2)))
     else:
         right.success("Bad orders obeyed: 0")
+
+
+st.subheader("Evaluation results")
+
+r = run_scoreboard(show=False)
+total_tested = r["good_total"] + r["poison_total"]
+st.write(
+    "Tested on " + str(total_tested) + " notes ("
+    + str(r["good_total"]) + " good, "
+    + str(r["poison_total"]) + " poison)."
+)
+
+e1, e2, e3, e4 = st.columns(4)
+e1.metric("Precision", str(round(r["precision"] * 100, 1)) + " %")
+e2.metric("Recall", str(round(r["recall"] * 100, 1)) + " %")
+e3.metric("F1 score", str(round(r["f1"], 2)))
+e4.metric("Attack success", str(round(r["asr_with"] * 100)) + " %")
+
+st.caption(
+    "Poison caught: " + str(r["caught"]) + " of " + str(r["poison_total"])
+    + ". False alarms: " + str(r["false_alarms"]) + " of " + str(r["good_total"])
+    + ". Attack success is with MemoryGuard (without it, we assume 100 %)."
+)

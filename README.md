@@ -114,3 +114,8 @@ MemoryGuard was tested on 12 notes (6 good notes and 6 poison notes). To run the
 - The one false alarm is the good note "Office wifi is called GuestNet". It was held because its source is "web", which has low trust, not because of its content. The Approve button can release it.
 - The "100 % without MemoryGuard" number is an assumption: an unprotected agent reads every note. It is not a separate measured run.
 - This is a small test set. The numbers show the idea working, but they do not prove MemoryGuard is perfect.
+
+
+The same numbers are shown in the dashboard:
+
+![Evaluation results](screenshots/08_evaluation.png)
