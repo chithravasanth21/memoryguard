@@ -8,6 +8,7 @@ class MemoryGuard:
     def __init__(self, path="data/memory.jsonl"):
         self.store = MemoryStore(path)
         self.session = 1
+        self.confirmed = []  # hashes of notes a human approved
 
     def write(self, text, source):
         # Save a new memory with its receipt
@@ -15,7 +16,12 @@ class MemoryGuard:
 
     def read(self):
         # Give back only the safe memories, and the held-back ones
-        return gate(self.store.entries, self.session)
+        return gate(self.store.entries, self.session, self.confirmed)
+
+    def confirm(self, note_hash):
+        # A human approves a held note
+        if note_hash not in self.confirmed:
+            self.confirmed.append(note_hash)
 
     def verify(self):
         # -1 means the chain is clean

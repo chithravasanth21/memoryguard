@@ -6,11 +6,17 @@ from src import smart
 THRESHOLD = 0.3
 
 
-def gate(entries, current_session):
+def gate(entries, current_session, confirmed=()):
     # Splits memories into "allowed" and "quarantined"
+    # "confirmed" is a list of note hashes a human has approved
     allowed = []
     quarantined = []
     for e in entries:
+        # A human approved this note, so let it through
+        if e["hash"] in confirmed:
+            allowed.append(e)
+            continue
+
         score = trust_score(e, current_session)
         problems = check_rules(e)
 
