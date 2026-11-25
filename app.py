@@ -7,6 +7,7 @@ from src.rules import check_rules
 from src.envelope import make_entry
 from src.gate import gate
 from src.attacks import GOOD_NOTES, POISON_NOTES
+from src.agent import SimpleAgent
 
 st.title("MemoryGuard Dashboard")
 
@@ -87,7 +88,7 @@ if user_text:
         st.error("HELD: this note is quarantined")
     else:
         st.success("ALLOWED: this note is safe")
-        
+
 st.subheader("Attack and undo (demo)")
 b1, b2, b3 = st.columns(3)
 
@@ -103,3 +104,46 @@ if b2.button("Tamper with a note"):
 if b3.button("Undo (rollback)"):
     g.undo("clean")
     st.rerun()
+
+# ---------------------------------------------------------
+# NEW: Agent demo
+# Two agents read the same memory. One has no protection,
+# the other only sees notes that MemoryGuard allowed.
+# ---------------------------------------------------------
+st.subheader("Agent demo")
+st.write("Ask the same question to two agents and compare.")
+
+question = st.selectbox(
+    "Question for the agents",
+    ["When is my meeting?", "What is the user's email?", "What is the office wifi?"],
+)
+
+if st.button("Ask both agents"):
+    all_notes = [e["text"] for e in g.store.entries]
+    safe_notes = [e["text"] for e in safe]
+
+    left, right = st.columns(2)
+
+    # Agent WITHOUT MemoryGuard
+    agent1 = SimpleAgent("Agent without MemoryGuard")
+    bad1 = agent1.actions(all_notes)
+    left.markdown("**" + agent1.name + "**")
+    left.write("Notes it can see: " + str(len(all_notes)))
+    left.write("Answer: " + agent1.answer(question, all_notes))
+    if bad1:
+        left.error("Bad orders obeyed: " + str(len(bad1)))
+        for a in bad1:
+            left.write("- " + a)
+    else:
+        left.success("Bad orders obeyed: 0")
+
+    # Agent WITH MemoryGuard
+    agent2 = SimpleAgent("Agent with MemoryGuard")
+    bad2 = agent2.actions(safe_notes)
+    right.markdown("**" + agent2.name + "**")
+    right.write("Notes it can see: " + str(len(safe_notes)))
+    right.write("Answer: " + agent2.answer(question, safe_notes))
+    if bad2:
+        right.error("Bad orders obeyed: " + str(len(bad2)))
+    else:
+        right.success("Bad orders obeyed: 0")

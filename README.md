@@ -84,3 +84,12 @@ Suspicious notes are held back. A human can approve notes that are harmless.
 One click restores the memory to a clean snapshot after an attack.
 
 ![Rollback](screenshots/06_rollback.png)
+
+### Agent demo
+
+This section shows why MemoryGuard matters. The same question is asked to two simple demo agents that read the same memory, which contains poisoned notes.
+
+- **Left: agent without MemoryGuard.** It reads every note, including the poisoned ones. It gives a wrong answer (the attacker's email) and obeys the bad orders hidden in the notes.
+- **Right: agent with MemoryGuard.** The poisoned notes are held back in quarantine. It does not use them, so it says "I don't know." and obeys 0 bad orders.
+
+![Agent demo](screenshots/07_agent_demo.png)
