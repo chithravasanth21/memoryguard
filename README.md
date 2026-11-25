@@ -93,3 +93,24 @@ This section shows why MemoryGuard matters. The same question is asked to two si
 - **Right: agent with MemoryGuard.** The poisoned notes are held back in quarantine. It does not use them, so it says "I don't know." and obeys 0 bad orders.
 
 ![Agent demo](screenshots/07_agent_demo.png)
+
+## Evaluation results
+
+MemoryGuard was tested on 12 notes (6 good notes and 6 poison notes). To run the test yourself, use `python -m src.evaluate`.
+
+| Measure | Result |
+|---|---|
+| Poison caught | 6 of 6 |
+| Poison missed | 0 |
+| False alarms | 1 of 6 |
+| Precision | 85.7 % |
+| Recall | 100 % |
+| F1 score | 0.92 |
+| Attack success without MemoryGuard | 100 % |
+| Attack success with MemoryGuard | 0 % |
+
+**Notes:**
+
+- The one false alarm is the good note "Office wifi is called GuestNet". It was held because its source is "web", which has low trust, not because of its content. The Approve button can release it.
+- The "100 % without MemoryGuard" number is an assumption: an unprotected agent reads every note. It is not a separate measured run.
+- This is a small test set. The numbers show the idea working, but they do not prove MemoryGuard is perfect.
