@@ -38,8 +38,9 @@ else:
     st.error("Chain check FAILED: a note was edited")
 
 rows = []
-for e in g.store.entries:
+for i, e in enumerate(g.store.entries, start=1):
     rows.append({
+        "id": f"N{i:02d}",
         "note": e["text"],
         "source": e["source"],
         "trust": round(trust_score(e, g.session), 2),
@@ -47,6 +48,11 @@ for e in g.store.entries:
         "status": "HELD" if e["hash"] in held_hashes else "allowed",
     })
 df = pd.DataFrame(rows)
+
+
+def color_row(row):
+    color = "#ffd6d6" if row["status"] == "HELD" else "#d6ffd6"
+    return ["background-color: " + color + "; color: black"] * len(row)
 
 
 def color_row(row):
@@ -72,7 +78,7 @@ if st.button("Reset demo"):
     st.rerun()
 
 st.subheader("Trust score of each note")
-st.bar_chart(df.set_index("note")["trust"])
+st.bar_chart(df.set_index("id")["trust"])
 
 st.subheader("Try it yourself")
 user_text = st.text_input("Type a note")
