@@ -118,10 +118,7 @@ if b3.button("Undo (rollback)"):
 st.subheader("Agent demo")
 st.write("Ask the same question to two agents and compare.")
 
-question = st.selectbox(
-    "Question for the agents",
-    ["When is my meeting?", "What is the user's email?", "What is the office wifi?"],
-)
+question = st.text_input("Question for the agents", "What is the user's email?")
 
 if st.button("Ask both agents"):
     all_notes = [e["text"] for e in g.store.entries]
